@@ -6,9 +6,11 @@ do {
 
     // SSL
     try BuildOpenSSL().buildALL()
-    try BuildGmp().buildALL()
-    try BuildNettle().buildALL()
-    try BuildGnutls().buildALL()
+    if !options.enableLGPL21 {
+        try BuildGmp().buildALL()
+        try BuildNettle().buildALL()
+        try BuildGnutls().buildALL()
+    }
 
     // libass
     try BuildUnibreak().buildALL()
@@ -373,7 +375,9 @@ private class BuildMPV: BaseBuild {
     }
 
     override func flagsDependencelibrarys() -> [Library] {
-        if BaseBuild.options.enableGPL {
+        if BaseBuild.options.enableLGPL21 {
+            return []
+        } else if BaseBuild.options.enableGPL {
             return [.gmp, .libsmbclient]
         } else {
             return [.gmp]
@@ -471,7 +475,9 @@ private class BuildFFMPEG: BaseBuild {
     }
 
     override func flagsDependencelibrarys() -> [Library] {
-        if BaseBuild.options.enableGPL {
+        if BaseBuild.options.enableLGPL21 {
+            return []
+        } else if BaseBuild.options.enableGPL {
             return [.gmp, .nettle, .gnutls, .libsmbclient]
         } else {
             return [.gmp, .nettle, .gnutls]
@@ -566,6 +572,11 @@ private class BuildFFMPEG: BaseBuild {
 
     override func arguments(platform: PlatformType, arch: ArchType) -> [String] {
         var arguments = ffmpegConfiguers
+        if BaseBuild.options.enableLGPL21 {
+            // LGPL-2.1-or-later: no version3 (gmp is LGPLv3), TLS via Secure Transport instead of gnutls
+            arguments.removeAll { $0 == "--enable-version3" }
+            arguments.append("--enable-securetransport")
+        }
         if BaseBuild.options.enableDebug {
             arguments.append("--enable-debug")
             arguments.append("--disable-stripping")
@@ -610,6 +621,9 @@ private class BuildFFMPEG: BaseBuild {
         //            arguments.append("--assert-level=1")
         //        }
         var dependencyLibrary = [Library.gmp, .gnutls, .libfreetype, .libharfbuzz, .libfribidi, .libass, .vulkan, .libshaderc, .lcms2, .libplacebo, .libdav1d, .libuavs3d]
+        if BaseBuild.options.enableLGPL21 {
+            dependencyLibrary.removeAll { $0 == .gmp || $0 == .gnutls }
+        }
         if BaseBuild.options.enableGPL {
             dependencyLibrary += [.libsmbclient]
         }
