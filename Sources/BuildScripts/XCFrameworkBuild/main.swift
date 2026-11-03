@@ -573,9 +573,10 @@ private class BuildFFMPEG: BaseBuild {
     override func arguments(platform: PlatformType, arch: ArchType) -> [String] {
         var arguments = ffmpegConfiguers
         if BaseBuild.options.enableLGPL21 {
-            // LGPL-2.1-or-later: no version3 (gmp is LGPLv3), TLS via Secure Transport instead of gnutls
+            // LGPL-2.1-or-later: no version3 (gmp is LGPLv3), TLS via OpenSSL 3 (Apache-2.0) instead of gnutls.
+            // Secure Transport is not an option: FFmpeg's backend cannot load a CA file on iOS (no SecItemImport).
+            // `--enable-openssl` is added by the dependency loop below, once dist/openssl exists for the slice.
             arguments.removeAll { $0 == "--enable-version3" }
-            arguments.append("--enable-securetransport")
         }
         if BaseBuild.options.enableDebug {
             arguments.append("--enable-debug")
@@ -623,6 +624,7 @@ private class BuildFFMPEG: BaseBuild {
         var dependencyLibrary = [Library.gmp, .gnutls, .libfreetype, .libharfbuzz, .libfribidi, .libass, .vulkan, .libshaderc, .lcms2, .libplacebo, .libdav1d, .libuavs3d]
         if BaseBuild.options.enableLGPL21 {
             dependencyLibrary.removeAll { $0 == .gmp || $0 == .gnutls }
+            dependencyLibrary.append(.openssl)
         }
         if BaseBuild.options.enableGPL {
             dependencyLibrary += [.libsmbclient]
