@@ -849,7 +849,7 @@ class BaseBuild {
     }
 
     /// The LGPL-2.1 build has no gmp/nettle/hogweed/gnutls, and its TLS (Secure Transport) needs Security.framework.
-    /// Only the `_FFmpeg` target is rewritten; the GPL graph is left as the template has it.
+    /// The `_FFmpeg` target is rewritten, and the GPL product, targets and binaryTargets are removed (they could not resolve).
     private func applyLGPL21Manifest(to packageFile: URL) throws {
         var str = try String(contentsOf: packageFile, encoding: .utf8)
         guard let start = str.range(of: "name: \"_FFmpeg\","),
@@ -860,6 +860,24 @@ class BaseBuild {
         block = block.replacingOccurrences(of: "\"gmp\", \"nettle\", \"hogweed\", \"gnutls\", ", with: "")
         block = block.replacingOccurrences(of: "                .linkedFramework(\"Metal\"),\n", with: "                .linkedFramework(\"Metal\"),\n                .linkedFramework(\"Security\"),\n")
         str.replaceSubrange(start.lowerBound..<end.lowerBound, with: block)
+
+        // Product: the `.library(` block named "MPVKit-GPL".
+        if let name = str.range(of: "name: \"MPVKit-GPL\","),
+           let open = str.range(of: ".library(", options: .backwards, range: str.startIndex..<name.lowerBound),
+           let close = str.range(of: "        ),\n", range: name.upperBound..<str.endIndex) {
+            let lineStart = str.range(of: "\n", options: .backwards, range: str.startIndex..<open.lowerBound)!.upperBound
+            str.removeSubrange(lineStart..<close.upperBound)
+        }
+
+        // Targets: everything from the `_MPVKit-GPL` target up to the auto-generated marker.
+        guard let gplName = str.range(of: "name: \"_MPVKit-GPL\","),
+              let gplOpen = str.range(of: ".target(", options: .backwards, range: str.startIndex..<gplName.lowerBound),
+              let marker = str.range(of: "//AUTO_GENERATE_TARGETS_BEGIN//") else {
+            throw NSError(domain: "Package.template.swift: _MPVKit-GPL target not found", code: 1)
+        }
+        let gplStart = str.range(of: "\n", options: .backwards, range: str.startIndex..<gplOpen.lowerBound)!.upperBound
+        let markerLine = str.range(of: "\n", options: .backwards, range: str.startIndex..<marker.lowerBound)!.upperBound
+        str.removeSubrange(gplStart..<markerLine)
         try str.write(toFile: packageFile.path, atomically: true, encoding: .utf8)
     }
 
