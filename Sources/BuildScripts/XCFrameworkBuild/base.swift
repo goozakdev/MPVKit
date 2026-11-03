@@ -796,6 +796,11 @@ class BaseBuild {
             }
         }
 
+        // The LGPL-2.1 build's TLS is Secure Transport; nothing links OpenSSL, so its stub frameworks must not ship.
+        if BaseBuild.options.enableLGPL21 && library == .openssl {
+            return
+        }
+
         var dependencyTargetContent = ""
         if self is ZipBaseBuild {
             for target in library.targets {
@@ -848,7 +853,7 @@ class BaseBuild {
         }
     }
 
-    /// The LGPL-2.1 build has no gmp/nettle/hogweed/gnutls, and its TLS (Secure Transport) needs Security.framework.
+    /// The LGPL-2.1 build has no gmp/nettle/hogweed/gnutls/openssl, and its TLS (Secure Transport) needs Security.framework.
     /// The `_FFmpeg` target is rewritten, and the GPL product, targets and binaryTargets are removed (they could not resolve).
     private func applyLGPL21Manifest(to packageFile: URL) throws {
         var str = try String(contentsOf: packageFile, encoding: .utf8)
@@ -858,6 +863,7 @@ class BaseBuild {
         }
         var block = String(str[start.lowerBound..<end.lowerBound])
         block = block.replacingOccurrences(of: "\"gmp\", \"nettle\", \"hogweed\", \"gnutls\", ", with: "")
+        block = block.replacingOccurrences(of: "\"Libssl\", \"Libcrypto\", ", with: "")
         block = block.replacingOccurrences(of: "                .linkedFramework(\"Metal\"),\n", with: "                .linkedFramework(\"Metal\"),\n                .linkedFramework(\"Security\"),\n")
         str.replaceSubrange(start.lowerBound..<end.lowerBound, with: block)
 
