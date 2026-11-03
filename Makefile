@@ -10,7 +10,7 @@ help:
 	@echo "                        Arguments:"
 	@echo "                            platform=ios,macos        Only build specified platform (ios,macos,tvos,tvsimulator,isimulator,maccatalyst,xros,xrsimulator)"
 	@echo "                            enable-gpl                Complile to GPL version"
-	@echo "                            enable-lgpl21             FFmpeg as LGPL-2.1+ (no gmp/gnutls, OpenSSL TLS)"
+	@echo "                            enable-lgpl21             FFmpeg as LGPL-2.1+ (no gmp/gnutls, Secure Transport TLS)"
 	@echo "  clean                 Clean the build artifacts"
 	@echo "  help                  Display this help message"
 

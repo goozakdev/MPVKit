@@ -848,7 +848,7 @@ class BaseBuild {
         }
     }
 
-    /// The LGPL-2.1 build has no gmp/nettle/hogweed/gnutls; its TLS is OpenSSL (Libssl/Libcrypto, already in `_FFmpeg`'s dependencies).
+    /// The LGPL-2.1 build has no gmp/nettle/hogweed/gnutls, and its TLS (Secure Transport) needs Security.framework.
     /// The `_FFmpeg` target is rewritten, and the GPL product, targets and binaryTargets are removed (they could not resolve).
     private func applyLGPL21Manifest(to packageFile: URL) throws {
         var str = try String(contentsOf: packageFile, encoding: .utf8)
@@ -858,6 +858,7 @@ class BaseBuild {
         }
         var block = String(str[start.lowerBound..<end.lowerBound])
         block = block.replacingOccurrences(of: "\"gmp\", \"nettle\", \"hogweed\", \"gnutls\", ", with: "")
+        block = block.replacingOccurrences(of: "                .linkedFramework(\"Metal\"),\n", with: "                .linkedFramework(\"Metal\"),\n                .linkedFramework(\"Security\"),\n")
         str.replaceSubrange(start.lowerBound..<end.lowerBound, with: block)
 
         // Product: the `.library(` block named "MPVKit-GPL".
