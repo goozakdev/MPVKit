@@ -791,6 +791,9 @@ class BaseBuild {
         if !FileManager.default.fileExists(atPath: packageFile.path) {
             try! FileManager.default.createDirectory(at: releaseDirPath, withIntermediateDirectories: true, attributes: nil)
             try! FileManager.default.copyItem(at: template, to: packageFile)
+            if BaseBuild.options.enableLGPL21 {
+                try applyLGPL21Manifest(to: packageFile)
+            }
         }
 
         var dependencyTargetContent = ""
@@ -843,6 +846,21 @@ class BaseBuild {
             """)
             try! str.write(toFile: packageFile.path, atomically: true, encoding: .utf8)
         }
+    }
+
+    /// The LGPL-2.1 build has no gmp/nettle/hogweed/gnutls, and its TLS (Secure Transport) needs Security.framework.
+    /// Only the `_FFmpeg` target is rewritten; the GPL graph is left as the template has it.
+    private func applyLGPL21Manifest(to packageFile: URL) throws {
+        var str = try String(contentsOf: packageFile, encoding: .utf8)
+        guard let start = str.range(of: "name: \"_FFmpeg\","),
+              let end = str.range(of: "name: \"_MPVKit-GPL\",", range: start.upperBound..<str.endIndex) else {
+            throw NSError(domain: "Package.template.swift: _FFmpeg target not found", code: 1)
+        }
+        var block = String(str[start.lowerBound..<end.lowerBound])
+        block = block.replacingOccurrences(of: "\"gmp\", \"nettle\", \"hogweed\", \"gnutls\", ", with: "")
+        block = block.replacingOccurrences(of: "                .linkedFramework(\"Metal\"),\n", with: "                .linkedFramework(\"Metal\"),\n                .linkedFramework(\"Security\"),\n")
+        str.replaceSubrange(start.lowerBound..<end.lowerBound, with: block)
+        try str.write(toFile: packageFile.path, atomically: true, encoding: .utf8)
     }
 
     func getFirstSuccessPlatform() -> PlatformType? {
