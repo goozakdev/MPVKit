@@ -143,38 +143,38 @@ let package = Package(
 
         .binaryTarget(
             name: "Libavcodec",
-            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.1/Libavcodec.xcframework.zip",
-            checksum: "a9088b04a4f4b68d46ed5e44583a696775e37af8c8d8126e76627307d36be189"
+            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.2/Libavcodec.xcframework.zip",
+            checksum: "cddbcba47a26fa05b54335bee0ea7cc51a44df6e4db1a061ee7750e67f5cde06"
         ),
         .binaryTarget(
             name: "Libavdevice",
-            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.1/Libavdevice.xcframework.zip",
-            checksum: "86c360c8ef876e3544f23c5cd2857c2561436500fdd90e5dc1c45f34067d28f9"
+            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.2/Libavdevice.xcframework.zip",
+            checksum: "0bd272c63a9d5e23647ec87eeb5c264b7d2f54403da7d42fbc1b0bd83b1daa55"
         ),
         .binaryTarget(
             name: "Libavformat",
-            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.1/Libavformat.xcframework.zip",
-            checksum: "6921c9bd9745e146bc2490bd5281a62648ff602c5fe99a95f8ecb466d0532faf"
+            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.2/Libavformat.xcframework.zip",
+            checksum: "538a0058cd3e09cbc882c8b46ab6ffcad281ce30a4aaad184edbdf3ce0d73306"
         ),
         .binaryTarget(
             name: "Libavfilter",
-            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.1/Libavfilter.xcframework.zip",
-            checksum: "c56bd1b4a77ad47edc3de6cd783cccfb0435ec46dd8cb3d3c61c1b579e3b37e7"
+            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.2/Libavfilter.xcframework.zip",
+            checksum: "d9e5f88260fc52119e4cb2ba76d3f73009dccf1a8a4870ce22781166ab9cdf76"
         ),
         .binaryTarget(
             name: "Libavutil",
-            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.1/Libavutil.xcframework.zip",
-            checksum: "9fcc8b88f8d1fe64af6512f0473576663ca2125a2adf59e073aa2a402bbbaf6a"
+            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.2/Libavutil.xcframework.zip",
+            checksum: "6927361cad06a81fa8c33e4bb020c4f0df2c6314ee069c9dfe09ef30a49236d6"
         ),
         .binaryTarget(
             name: "Libswresample",
-            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.1/Libswresample.xcframework.zip",
-            checksum: "83c69ad1f4c7ac2b609c3e565e99f8bce5364699ab4557f62fe6e287e0958ba7"
+            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.2/Libswresample.xcframework.zip",
+            checksum: "c8f14935b7a828c9b2d58c5655c18fe270c0a34170b318b9030764978c1c961a"
         ),
         .binaryTarget(
             name: "Libswscale",
-            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.1/Libswscale.xcframework.zip",
-            checksum: "e63d4f96bf9a10e2b68263b904d14ae15a9f59f7edad359472105ddfaada843c"
+            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.2/Libswscale.xcframework.zip",
+            checksum: "3ccfc4084c67e060e8a30acf1b0f88f0745d0103f7eb52168d0fc9ddc0c7e179"
         ),
 
         .binaryTarget(
@@ -191,8 +191,8 @@ let package = Package(
 
         .binaryTarget(
             name: "Libmpv",
-            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.1/Libmpv.xcframework.zip",
-            checksum: "d4ff585f8728fe0ec3c19771f507c0d6df2b619795edc360d76b07d7e2601e0c"
+            url: "https://github.com/goozakdev/MPVKit/releases/download/1.0.0-lgpl21.2/Libmpv.xcframework.zip",
+            checksum: "72823eca598a6af861026d6fe33959ae39bda492ada949e3493b2d6cbf7ccab5"
         ),
         //AUTO_GENERATE_TARGETS_END//
     ]
