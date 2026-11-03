@@ -1,4 +1,4 @@
-From 203827709e396bcc7c65b7f0700305ba1e0afd17 Mon Sep 17 00:00:00 2001
+From 55bb571654196af64a1704ac68e8e5a8c6a2790b Mon Sep 17 00:00:00 2001
 From: Brandon Johnson <320017255+goozakdev@users.noreply.github.com>
 Date: Mon, 2 Nov 2026 19:42:29 -0700
 Subject: [PATCH] avformat/tls_securetransport: load ca_file without
@@ -15,12 +15,20 @@ av_base64_decode() and build the anchor array with
 SecCertificateCreateWithData(). Other PEM block types are skipped, a
 malformed block is AVERROR_INVALIDDATA, and so is a file without any
 certificate. Behaviour with SecItemImport() is unchanged.
+
+Open the CA file with a protocol whitelist of exactly "file" in both
+import_ca_pem() and import_pem(), instead of inheriting the stream's
+whitelist. A protocol such as mpv's nested
+"http,https,tls,rtp,tcp,udp,crypto,httpproxy" does not list "file", so
+the inherited whitelist made every CA load, and so every https open,
+fail with "Protocol 'file' not on whitelist". A CA path is always a
+local file; the GnuTLS and OpenSSL backends read it straight from disk.
 ---
- libavformat/tls_securetransport.c | 117 +++++++++++++++++++++++++++++-
- 1 file changed, 116 insertions(+), 1 deletion(-)
+ libavformat/tls_securetransport.c | 121 +++++++++++++++++++++++++++++-
+ 1 file changed, 119 insertions(+), 2 deletions(-)
 
 diff --git a/libavformat/tls_securetransport.c b/libavformat/tls_securetransport.c
-index f52fc97..484bb3f 100644
+index f52fc97..19690f6 100644
 --- a/libavformat/tls_securetransport.c
 +++ b/libavformat/tls_securetransport.c
 @@ -19,6 +19,7 @@
@@ -39,7 +47,7 @@ index f52fc97..484bb3f 100644
  #include "libavutil/mem.h"
  #include "libavutil/opt.h"
  #include "libavutil/parseutils.h"
-@@ -67,6 +69,114 @@ static int print_tls_error(URLContext *h, int ret)
+@@ -67,6 +69,115 @@ static int print_tls_error(URLContext *h, int ret)
      return AVERROR(EIO);
  }
  
@@ -59,9 +67,10 @@ index f52fc97..484bb3f 100644
 +    int64_t size;
 +    int ret = 0;
 +
++    /* a CA path is always a local file, whatever the stream's whitelist */
 +    if ((ret = ffio_open_whitelist(&s, path, AVIO_FLAG_READ,
 +                                   &h->interrupt_callback, NULL,
-+                                   h->protocol_whitelist, h->protocol_blacklist)) < 0)
++                                   "file", NULL)) < 0)
 +        goto end;
 +
 +    if ((size = avio_size(s)) < 0) {
@@ -154,7 +163,19 @@ index f52fc97..484bb3f 100644
  static int import_pem(URLContext *h, char *path, CFArrayRef *array)
  {
  #if !HAVE_SECITEMIMPORT
-@@ -136,7 +246,12 @@ static int load_ca(URLContext *h)
+@@ -84,9 +195,10 @@ static int import_pem(URLContext *h, char *path, CFArrayRef *array)
+         goto end;
+     }
+ 
++    /* a CA path is always a local file, whatever the stream's whitelist */
+     if ((ret = ffio_open_whitelist(&s, path, AVIO_FLAG_READ,
+                                    &h->interrupt_callback, NULL,
+-                                   h->protocol_whitelist, h->protocol_blacklist)) < 0)
++                                   "file", NULL)) < 0)
+         goto end;
+ 
+     if ((ret = avio_size(s)) < 0)
+@@ -136,7 +248,12 @@ static int load_ca(URLContext *h)
      int ret = 0;
      CFArrayRef array = NULL;
  
